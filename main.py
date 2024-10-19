@@ -4,7 +4,7 @@ import sqlite3
 import schedule
 import time
 from multiprocessing import Process
-from exchange import update_exchange_rate as update_exchange_rate_task
+from exchange import update_exchange_rate
 
 # Crear instancia de FastAPI
 app = FastAPI()
@@ -76,11 +76,12 @@ def get_exchange_rate_history(currency: str):
 @app.post("/exchange_rate/update/", dependencies=[Depends(verify_token)])
 def update_exchange_rate_endpoint():
     try:
-        update_exchange_rate_task()
+        with get_db_connection() as conn:
+            update_exchange_rate(conn)
         return {"detail": "Exchange rate updated successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while updating the exchange rate: {str(e)}")
-
+    
 # Endpoint para actualizar la tasa de cambio manualmente
 @app.put("/exchange_rate/update_manual/", dependencies=[Depends(verify_token)])
 def update_manual_exchange_rate(
