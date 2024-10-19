@@ -14,8 +14,8 @@ Este script de Python está diseñado para ejecutarse como un cron job, obtenien
 
 Para ejecutar este script, necesitarás Python 3.6+ y los siguientes paquetes:
 
-- fastapi
-- uvicorn
+- fastapi==0.100.0
+- hypercorn==0.14.4
 - pyBCV
 - sqlite3
 - schedule
@@ -72,7 +72,7 @@ crontab -e
 Para correr el servidor FastAPI y proporcionar la API, usa el siguiente comando:
 
 ```sh
-uvicorn main:app --reload
+hypercorn main:app --reload
 ```
 
 ### Endpoints de la API

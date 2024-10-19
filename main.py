@@ -27,6 +27,10 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if credentials.credentials != API_TOKEN:
         raise HTTPException(status_code=403, detail="Invalid or missing token")
 
+@app.get("/")
+async def root():
+    return {"greeting": "Hello, World!", "message": "Welcome to tasaBCVAPI!"}
+
 # Endpoint para consultar la tasa activa según la moneda
 @app.get("/exchange_rate/active/")
 def get_active_exchange_rate(currency: str):
