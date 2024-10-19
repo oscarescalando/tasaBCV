@@ -65,6 +65,7 @@ def get_exchange_rate_history(currency: str):
 
     return [
         {
+            "id": rate["id"],
             "currency": rate["currency"],
             "date_exchange": rate["date_exchange"],
             "amount": rate["amount"],
