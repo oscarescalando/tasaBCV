@@ -4,13 +4,15 @@ import sqlite3
 import schedule
 import time
 from multiprocessing import Process
-from exchange import update_exchange_rate
+from exchange import update_exchange_rate2, update_exchange_rate as update_exchange_task 
+
 
 # Crear instancia de FastAPI
 app = FastAPI()
 
 # Conectar a la base de datos SQLite
 db_path = 'exchange_rates.db'
+
 
 def get_db_connection():
     conn = sqlite3.connect(db_path)
@@ -36,7 +38,7 @@ async def root():
 def get_active_exchange_rate(currency: str):
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM exchanges WHERE currency = ? AND is_active = 1 ORDER BY date_exchange DESC", (currency.upper(),))
+        cursor.execute("SELECT * FROM exchanges WHERE currency = ? AND is_active = 1", (currency.upper(),))
         exchange_rate = cursor.fetchone()
 
     if exchange_rate is None:
@@ -63,7 +65,6 @@ def get_exchange_rate_history(currency: str):
 
     return [
         {
-            "id": rate["id"],
             "currency": rate["currency"],
             "date_exchange": rate["date_exchange"],
             "amount": rate["amount"],
@@ -77,11 +78,11 @@ def get_exchange_rate_history(currency: str):
 def update_exchange_rate_endpoint():
     try:
         with get_db_connection() as conn:
-            update_exchange_rate(conn)
+            update_exchange_rate2(conn)
         return {"detail": "Exchange rate updated successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while updating the exchange rate: {str(e)}")
-    
+
 # Endpoint para actualizar la tasa de cambio manualmente
 @app.put("/exchange_rate/update_manual/", dependencies=[Depends(verify_token)])
 def update_manual_exchange_rate(
@@ -159,7 +160,7 @@ def create_exchange_rate(
     return {"detail": "Exchange rate created successfully."}
 
 # Programar la ejecución diaria a las 12 AM
-schedule.every().day.at("00:00").do(update_exchange_rate)
+schedule.every().day.at("00:00").do(update_exchange_task)
 
 def run_schedule():
     while True:
@@ -177,3 +178,4 @@ if __name__ == "__main__":
 # fastapi
 # uvicorn
 # schedule
+
