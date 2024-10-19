@@ -159,7 +159,7 @@ def create_exchange_rate(
     return {"detail": "Exchange rate created successfully."}
 
 # Programar la ejecución diaria a las 12 AM
-schedule.every().day.at("00:00").do(update_exchange_rate_task)
+schedule.every().day.at("00:00").do(update_exchange_rate)
 
 def run_schedule():
     while True:
