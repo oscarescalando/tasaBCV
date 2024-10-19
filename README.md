@@ -1,5 +1,3 @@
-# Cron Job de Tasa de Conversión USD/VES y API para Consultar las tasas
-
 Este script de Python está diseñado para ejecutarse como un cron job, obteniendo diariamente la tasa de cambio USD/VES del Banco Central de Venezuela (BCV) y actualizando esta información en una base de datos SQLite. Además, proporciona una API para consultar las tasas de cambio utilizando FastAPI.
 
 ## Características principales
@@ -8,6 +6,9 @@ Este script de Python está diseñado para ejecutarse como un cron job, obtenien
 - Verifica si ya existe un registro para la fecha actual en la base de datos SQLite
 - Actualiza el registro existente o crea uno nuevo según sea necesario
 - Proporciona una API para consultar la tasa de cambio activa y el historial de tasas de cambio
+- Permite la actualización manual de la tasa de cambio
+- Permite la eliminación de registros de tasas de cambio
+- Proporciona autenticación básica para endpoints sensibles
 
 ## Requisitos
 
@@ -17,6 +18,7 @@ Para ejecutar este script, necesitarás Python 3.6+ y los siguientes paquetes:
 - uvicorn
 - pyBCV
 - sqlite3
+- schedule
 
 ## Instalación
 
@@ -24,11 +26,16 @@ Para ejecutar este script, necesitarás Python 3.6+ y los siguientes paquetes:
 
 2. Crea un entorno virtual (opcional pero recomendado):
 
-python -m venv venv source venv/bin/activate # En Windows usa venv\Scripts\activate
+```sh
+python -m venv venv
+source venv/bin/activate  # En Windows usa venv\Scripts\activate
+```
 
 3. Instala las dependencias:
 
+```sh
 pip install -r requirements.txt
+```
 
 ## Configuración
 
@@ -40,7 +47,9 @@ pip install -r requirements.txt
 
 Para actualizar la tasa de cambio manualmente, ejecuta:
 
+```sh
 python exchange.py
+```
 
 ### Configurar como un cron job
 
@@ -48,30 +57,61 @@ Para configurarlo como un cron job en un sistema Unix:
 
 1. Abre el editor de crontab:
 
- crontab -e
+```sh
+crontab -e
+```
 
 2. Añade una línea como esta para ejecutar el script diariamente a las 9:00 AM:
 
+```sh
 0 9 * * * /ruta/al/entorno/python exchange.py >> /ruta/al/log.txt 2>&1
-
+```
 
 ### Ejecutar el servidor FastAPI
 
 Para correr el servidor FastAPI y proporcionar la API, usa el siguiente comando:
 
+```sh
 uvicorn main:app --reload
-
+```
 
 ### Endpoints de la API
 
 - **Consultar la tasa activa según la moneda:**
 
+```http
 GET /exchange_rate/active/?currency=USD
+```
 
 - **Consultar las últimas 30 tasas de cambio según la moneda:**
 
+```http
 GET /exchange_rate/history/?currency=USD
+```
 
+- **Actualizar la tasa de cambio automáticamente:**
+
+```http
+POST /exchange_rate/update/
+```
+
+- **Actualizar la tasa de cambio manualmente:**
+
+```http
+PUT /exchange_rate/update_manual/
+```
+
+- **Eliminar un registro de la tasa de cambio:**
+
+```http
+DELETE /exchange_rate/delete/
+```
+
+- **Crear una nueva tasa de cambio:**
+
+```http
+POST /exchange_rate/create/
+```
 
 ## Funcionamiento
 
@@ -79,7 +119,7 @@ GET /exchange_rate/history/?currency=USD
 2. Verifica si ya existe un registro en la base de datos SQLite para la fecha actual.
 3. Si existe, actualiza el registro con la nueva tasa.
 4. Si no existe, crea un nuevo registro con la fecha actual y la tasa obtenida.
-5. El servidor FastAPI en `main.py` proporciona endpoints para consultar la tasa de cambio activa y el historial de tasas de cambio.
+5. El servidor FastAPI en `main.py` proporciona endpoints para consultar la tasa de cambio activa, el historial de tasas de cambio, y permite la actualización y eliminación de registros.
 
 ## Desarrollo
 
@@ -88,6 +128,7 @@ El script utiliza:
 - `pyBCV` para obtener la tasa de cambio oficial del BCV.
 - `fastapi` para crear la API.
 - `sqlite3` para manejar la base de datos SQLite.
+- `schedule` para programar la actualización automática de la tasa de cambio.
 
 ## Solución de problemas
 
