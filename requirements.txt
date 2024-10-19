@@ -2,3 +2,4 @@ pyBCV
 fastapi
 uvicorn
 schedule
+hypercorn
