@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "/Users/servgraph_out/Python/pyBDVAPI/exchange_rates.db"
+  }
+]
